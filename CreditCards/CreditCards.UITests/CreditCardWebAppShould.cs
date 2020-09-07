@@ -1,3 +1,4 @@
+using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using System.IO;
 using System.Reflection;
@@ -70,15 +71,16 @@ namespace CreditCards.UITests
 
 			driver.Manage().Window.Maximize();
 			Helper.Pause();
+			string initialToken = driver.FindElement(By.Id("GenerationToken")).Text;
 			driver.Url = AboutUrl;
 			Helper.Pause();
 			driver.Navigate().Back(); 
 			Helper.Pause();
+			string reloadedToken = driver.FindElement(By.Id("GenerationToken")).Text;
 
 			Assert.Equal(HomeTitle, driver.Title);
 			Assert.Equal(HomeUrl, driver.Url);
-
-			//TODO: Assert Page was reloaded
+			Assert.NotEqual(initialToken, reloadedToken);
 		}
 
 		[Fact]
@@ -91,21 +93,40 @@ namespace CreditCards.UITests
 			};
 
 			driver.Manage().Window.Maximize();
-			Helper.Pause();
+			//Helper.Pause();
 
 			driver.Url = HomeUrl;
-			Helper.Pause();
+			//Helper.Pause();
+			string initialToken = driver.FindElement(By.Id("GenerationToken")).Text;
 
 			driver.Navigate().Back();
-			Helper.Pause();
+			//Helper.Pause();
 
 			driver.Navigate().Forward();
-			Helper.Pause();
+			//Helper.Pause();
+			string reloadedToken = driver.FindElement(By.Id("GenerationToken")).Text;
 
 			Assert.Equal(HomeTitle, driver.Title);
 			Assert.Equal(HomeUrl, driver.Url);
+			Assert.NotEqual(initialToken, reloadedToken);
+		}
 
-			//TODO: Assert Page was reloaded
+		[Fact]
+		[Trait("Category", "Smoke")]
+		public void DisplayProductsAndRates()
+		{
+			using var driver = new ChromeDriver(path, options)
+			{
+				Url = HomeUrl
+			};
+
+			driver.Manage().Window.Maximize();
+			var firstTableCell = driver.FindElement(By.TagName("td"));
+			var firstProduct = firstTableCell.Text;
+
+			Assert.Equal("Easy Credit Card", firstProduct);
+
+			//TODO: Check rest of the table
 		}
 	}
 }
