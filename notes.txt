@@ -1,0 +1,5 @@
+Followed Selenium C# course on pluralsight
+
+Creating Automated Browser Tests with Selenium in C#
+https://app.pluralsight.com/library/courses/creating-automated-browser-tests-selenium-c-sharp/
+
