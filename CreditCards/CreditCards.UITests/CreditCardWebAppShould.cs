@@ -22,8 +22,6 @@ namespace CreditCards.UITests
 			options.AddArguments("no-sandbox", "disable-dev-shm-usage", "incognito");
 			options.AddExcludedArgument("enable-automation");
 			options.AddAdditionalOption("useAutomationExtension", false);
-			//if (config.Browser.IsHeadless)
-			//	options.AddArguments("--headless");
 		}
 
 		[Fact]
@@ -121,12 +119,16 @@ namespace CreditCards.UITests
 			};
 
 			driver.Manage().Window.Maximize();
-			var firstTableCell = driver.FindElement(By.TagName("td"));
-			var firstProduct = firstTableCell.Text;
+			var tableCells = driver.FindElements(By.TagName("td"));
 
-			Assert.Equal("Easy Credit Card", firstProduct);
+			Assert.Equal("Easy Credit Card", tableCells[0].Text);
+			Assert.Equal("20% APR", tableCells[1].Text);
 
-			//TODO: Check rest of the table
+			Assert.Equal("Silver Credit Card", tableCells[2].Text);
+			Assert.Equal("18% APR", tableCells[3].Text);
+
+			Assert.Equal("Gold Credit Card", tableCells[4].Text);
+			Assert.Equal("17% APR", tableCells[5].Text);
 		}
 	}
 }

@@ -3,3 +3,18 @@ Followed Selenium C# course on pluralsight
 Creating Automated Browser Tests with Selenium in C#
 https://app.pluralsight.com/library/courses/creating-automated-browser-tests-selenium-c-sharp/
 
+
+Absolute XPATH is tied to html structure that can change frequently. Retrieve via context menu on page source
+"/html/body/div/div[4]/div/p/a"
+
+One improvement can be Relative XPath:
+get html > right click > View Page Source > Ctrl+A > Copy Pate to http://xpather.com/
+query:
+//a[text()[contains(.,'- Apply Now!')]]
+this cathces the same element but this is a relative XPath n therefore less prone to structural changes
+
+
+
+
+
+  
