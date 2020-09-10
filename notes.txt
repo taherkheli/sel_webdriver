@@ -3,7 +3,9 @@ Followed Selenium C# course on pluralsight
 Creating Automated Browser Tests with Selenium in C#
 https://app.pluralsight.com/library/courses/creating-automated-browser-tests-selenium-c-sharp/
 
-
+***********************************************************************************************************************
+XPather
+***********************************************************************************************************************
 Absolute XPATH is tied to html structure that can change frequently. Retrieve via context menu on page source
 "/html/body/div/div[4]/div/p/a"
 
@@ -13,8 +15,39 @@ query:
 //a[text()[contains(.,'- Apply Now!')]]
 this cathces the same element but this is a relative XPath n therefore less prone to structural changes
 
+***********************************************************************************************************************
+Image Comaprison via ApprovalTests + BeyondCompare
+***********************************************************************************************************************
+Easy n fast way of verifying certain screen appearances are as expected (comapre to ref screen)
 
-
-
-
+- Explcitily set browser width and height
+- such a screen comparison is a BAD idea for react kinda dynamically generated stuff i.e. slightly changed css styling
+  n everything fails
   
+***********************************************************************************************************************
+javascript in browser console or C# test 
+***********************************************************************************************************************
+In firefox console, you can run js e.g.
+
+document.getElementById('HiddenLink').click();
+
+The same can be done via C# code via IJavaScriptExecutor 
+
+***********************************************************************************************************************
+Actions
+***********************************************************************************************************************
+Actions can help execute advanced manipulation or lower level actions liek scrolling. More info can be found here
+http://bit.ly/psseleniumactions
+https://www.selenium.dev/selenium/docs/api/dotnet/html/T_OpenQA_Selenium_Interactions_Actions.htm
+
+***********************************************************************************************************************
+Tips
+***********************************************************************************************************************
+More info on chrome capabilities can be found here:
+https://chromedriver.chromium.org/capabilities
+
+***********************************************************************************************************************
+
+
+
+

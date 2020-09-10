@@ -26,7 +26,7 @@ namespace CreditCards.UITests
 
 		public CreditCardApplicationShould(ITestOutputHelper output)
 		{
-			options.AddArguments("no-sandbox", "disable-dev-shm-usage", "incognito");
+			options.AddArguments("no-sandbox", "disable-dev-shm-usage", "incognito", "--start-maximized");
 			options.AddExcludedArgument("enable-automation");
 			options.AddAdditionalOption("useAutomationExtension", false);
 			//if (config.Browser.IsHeadless)
@@ -43,7 +43,6 @@ namespace CreditCards.UITests
 				Url = HomeUrl
 			};
 
-			driver.Manage().Window.Maximize();
 			driver.FindElement(By.Name("ApplyLowRate")).Click();
 
 			Assert.Equal(ApplyUrl, driver.Url);
@@ -58,7 +57,6 @@ namespace CreditCards.UITests
 				Url = HomeUrl
 			};
 
-			driver.Manage().Window.Maximize();
 			driver.FindElement(By.CssSelector("[data-slide='next']")).Click();
 
 			var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(1));
@@ -79,7 +77,6 @@ namespace CreditCards.UITests
 				Url = HomeUrl
 			};
 
-			driver.Manage().Window.Maximize();
 			driver.FindElement(By.CssSelector("[data-slide='next']")).Click();
 			Helper.Pause(1000);
 			driver.FindElement(By.CssSelector("[data-slide='next']")).Click();
@@ -120,7 +117,6 @@ namespace CreditCards.UITests
 				Url = HomeUrl
 			};
 
-			driver.Manage().Window.Maximize();
 			driver.FindElement(By.PartialLinkText("- Apply Now!")).Click();
 
 			Assert.Equal(ApplyUrl, driver.Url);
@@ -135,7 +131,6 @@ namespace CreditCards.UITests
 				Url = HomeUrl
 			};
 
-			driver.Manage().Window.Maximize();
 			//absolute XPATH -> tied to html structure
 			//driver.FindElement(By.XPath("/html/body/div/div[4]/div/p/a")).Click();  
 
@@ -154,7 +149,6 @@ namespace CreditCards.UITests
 				Url = ApplyUrl
 			};
 
-			driver.Manage().Window.Maximize();
 			driver.FindElement(By.Id("FirstName")).SendKeys("Dudda");
 			driver.FindElement(By.Id("LastName")).SendKeys("Bayrozgaar");
 			driver.FindElement(By.Id("FrequentFlyerNumber")).SendKeys("12345-A");
@@ -214,7 +208,6 @@ namespace CreditCards.UITests
 				Url = ApplyUrl
 			};
 
-			driver.Manage().Window.Maximize();
 			driver.FindElement(By.Id("FirstName")).SendKeys(firstName);
 			//Don't enter lastname
 			driver.FindElement(By.Id("FrequentFlyerNumber")).SendKeys("123456-A");
