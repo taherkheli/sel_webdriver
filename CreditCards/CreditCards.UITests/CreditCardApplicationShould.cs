@@ -25,6 +25,10 @@ namespace CreditCards.UITests
 		public CreditCardApplicationShould(ChromeDriverFixture chromeDriverFixture)
 		{
 			_driver = chromeDriverFixture.Driver;
+
+			//these might help with stability
+			_driver.Manage().Cookies.DeleteAllCookies();
+			_driver.Url = "about:blank";
 		}
 
 		[Fact]

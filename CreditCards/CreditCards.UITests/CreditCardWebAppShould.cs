@@ -167,7 +167,8 @@ namespace CreditCards.UITests
 			Assert.True(homePage.CookieMessageIsPresent);
 		}
 
-		[Fact]
+
+		[Fact(Skip = "Depends on screen resolution. ")]
 		[UseReporter(typeof(BeyondCompareReporter))]
 		public void RenderAboutPage()
 		{

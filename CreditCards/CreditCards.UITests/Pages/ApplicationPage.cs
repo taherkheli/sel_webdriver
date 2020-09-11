@@ -1,43 +1,19 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
-using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading;
 
 namespace CreditCards.UITests.Pages
 {
-	class ApplicationPage
+	class ApplicationPage : Page
 	{
-
-		#region Constants
-		private const string Url = "http://localhost:5258/Apply";
-		private const string Title = "Credit Card Application - Credit Cards";
-		#endregion
-
-		private readonly IWebDriver _driver;
-
-		public ApplicationPage(IWebDriver driver)
+		public ApplicationPage(IWebDriver driver) : base(driver)
 		{
-			_driver = driver;
-			_driver.Url = Url;
-			EnsurePageLoaded();
 		}
 
-		public void EnsurePageLoaded(bool onlyCheckUrlStartsWithExpectedText = true)    
-		{
-			bool urlIsCorrect = false;
+		protected override string Url => "http://localhost:5258/Apply";
 
-			if (onlyCheckUrlStartsWithExpectedText)
-				urlIsCorrect = _driver.Url.StartsWith(Url);
-			else
-				urlIsCorrect = (_driver.Url == Url);
-
-			var pageHasLoaded = (urlIsCorrect && (_driver.Title == Title));
-
-			if (!pageHasLoaded)
-				throw new Exception($"Failed to load page. Page URL = '{_driver.Url}' PageSource: \r\n {_driver.PageSource}");
-		}
+		protected override string Title => "Credit Card Application - Credit Cards";
 
 		public ReadOnlyCollection<string> ValidationMessages
 		{

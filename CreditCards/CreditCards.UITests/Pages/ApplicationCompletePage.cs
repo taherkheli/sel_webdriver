@@ -1,40 +1,16 @@
 ﻿using OpenQA.Selenium;
-using System;
 
 namespace CreditCards.UITests.Pages
 {
-	class ApplicationCompletePage
+	class ApplicationCompletePage : Page
 	{
-		#region Constants
-		private const string Url = "http://localhost:5258/Apply";
-		private const string Title = "Application Complete - Credit Cards";
-		#endregion
-
-		private readonly IWebDriver _driver;
-
-		public ApplicationCompletePage(IWebDriver driver)
+		public ApplicationCompletePage(IWebDriver driver) : base(driver)
 		{
-			_driver = driver;
-			if (driver.Url != Url)
-				_driver.Url = Url;
-
-			EnsurePageLoaded();
 		}
 
-		public void EnsurePageLoaded(bool onlyCheckUrlStartsWithExpectedText = true)
-		{
-			bool urlIsCorrect = false;
+		protected override string Url => "http://localhost:5258/Apply";
 
-			if (onlyCheckUrlStartsWithExpectedText)
-				urlIsCorrect = _driver.Url.StartsWith(Url);
-			else
-				urlIsCorrect = (_driver.Url == Url);
-
-			var pageHasLoaded = (urlIsCorrect && (_driver.Title == Title));
-
-			if (!pageHasLoaded)
-				throw new Exception($"Failed to load page. Page URL = '{_driver.Url}' PageSource: \r\n {_driver.PageSource}");
-		}
+		protected override string Title => "Application Complete - Credit Cards";
 
 		public string Decision => _driver.FindElement(By.Id("Decision")).Text;
 		public string ReferenceNumber => _driver.FindElement(By.Id("ReferenceNumber")).Text;

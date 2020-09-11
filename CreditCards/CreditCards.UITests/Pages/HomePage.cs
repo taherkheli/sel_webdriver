@@ -8,21 +8,15 @@ using System.Linq;
 
 namespace CreditCards.UITests.Pages
 {
-	class HomePage
+	class HomePage : Page
 	{
-		#region Constants
-		private const string Url = "http://localhost:5258/";
-		private const string Title = "Home Page - Credit Cards";
-		#endregion
-
-		private readonly IWebDriver _driver;
-
-		public HomePage(IWebDriver driver)
+		public HomePage(IWebDriver driver) : base(driver)
 		{
-			_driver = driver;
-			_driver.Url = Url;
-			EnsurePageLoaded();
 		}
+
+		protected override string Url => "http://localhost:5258/";
+
+		protected override string Title => "Home Page - Credit Cards";
 
 		public string GenerationToken 
 		{
@@ -48,23 +42,6 @@ namespace CreditCards.UITests.Pages
 			}
 		}
 
-		public void EnsurePageLoaded(bool onlyCheckUrlStartsWithExpectedText = true)    //basically ignore any query string params or fragments appearing in the URL
-		{
-			bool urlIsCorrect = false;
-
-			if (onlyCheckUrlStartsWithExpectedText)
-				urlIsCorrect = _driver.Url.StartsWith(Url);
-			else
-				urlIsCorrect = (_driver.Url == Url);
-
-			var pageHasLoaded = (urlIsCorrect && (_driver.Title == Title));
-
-			if (!pageHasLoaded)
-				throw new Exception($"Failed to load page. Page URL = '{_driver.Url}' PageSource: \r\n {_driver.PageSource}");
-		}
-
-
-
 		public void ClickContactFooterLink() => _driver.FindElement(By.Id("ContactFooter")).Click();
 
 		public void ClickLiveChatLink() => _driver.FindElement(By.Id("LiveChat")).Click();
@@ -76,6 +53,7 @@ namespace CreditCards.UITests.Pages
 			_driver.FindElement(By.Name("ApplyLowRate")).Click();
 			return new ApplicationPage(_driver);
 		}
+
 		public void WaitForEasyAppCarouselPage()
 		{
 			var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(1));
