@@ -46,6 +46,23 @@ Tips
 More info on chrome capabilities can be found here:
 https://chromedriver.chromium.org/capabilities
 
+
+***********************************************************************************************************************
+Good Practices
+***********************************************************************************************************************
+Use Page Object Models for non-trivial tests
+Check page is loaded before interacting
+Element locators
+- Use most reliable method
+- Use simplest method (e.g. Id)
+Use configuration files (e.g. servers/ports)
+Explicit waits over Thread.Sleep
+Independent test ordering / test isolation
+Execute as part of CI build
+Usually test features, not visuals
+Manage browser updates on test machines
+Test case/data preparation
+
 ***********************************************************************************************************************
 
 
