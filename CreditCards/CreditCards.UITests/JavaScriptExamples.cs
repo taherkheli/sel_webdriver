@@ -31,9 +31,7 @@ namespace CreditCards.UITests
 			{
 				Url = OverlayUrl
 			};
-
-			driver.Manage().Window.Maximize();
-
+			
 			//This fails due to overlay on top preventing the click
 			//driver.FindElement(By.Id("HiddenLink")).Click();
 
@@ -52,8 +50,7 @@ namespace CreditCards.UITests
 			{
 				Url = OverlayUrl
 			};
-
-			driver.Manage().Window.Maximize();
+						
 			var script = "return document.getElementById('HiddenLink').innerHTML;";
 			var js = (IJavaScriptExecutor)driver;
 			var linkText = (string)js.ExecuteScript(script);
