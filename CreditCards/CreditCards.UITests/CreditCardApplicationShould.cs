@@ -1,4 +1,5 @@
-﻿using OpenQA.Selenium;
+﻿using CreditCards.UITests.Pages;
+using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
 using SeleniumExtras.WaitHelpers;
@@ -38,44 +39,30 @@ namespace CreditCards.UITests
 		[Fact]
 		public void BeInitiatedFromHomePage_NewLowRate()
 		{
-			using var driver = new ChromeDriver(path, options)
-			{
-				Url = HomeUrl
-			};
-
-			driver.FindElement(By.Name("ApplyLowRate")).Click();
-
-			Assert.Equal(ApplyUrl, driver.Url);
-			Assert.Equal(ApplyTitle, driver.Title);
+			using var driver = new ChromeDriver(path, options);
+			var homePage = new HomePage(driver);
+			var appPage = homePage.ClickApplyLowRateLink();
+			appPage.EnsurePageLoaded();
 		}
 
 		[Fact]
 		public void BeInitiatedFromHomePage_EasyApplication()
 		{
-			using var driver = new ChromeDriver(path, options)
-			{
-				Url = HomeUrl
-			};
+			using var driver = new ChromeDriver(path, options);
+			var homePage = new HomePage(driver);
 
-			driver.FindElement(By.CssSelector("[data-slide='next']")).Click();
+			driver.FindElement(By.CssSelector("[data-slide='next']")).Click(); //dun wanna wait 10 s ;)
+			homePage.WaitForEasyAppCarouselPage();
 
-			var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(1));
-			//TODO: make lambda work
-			//var applyLink = wait.Until( (d) => d.FindElement(By.LinkText("Easy: Apply Now!")));
-			var applyLink = wait.Until(ExpectedConditions.ElementToBeClickable(By.LinkText("Easy: Apply Now!")));
-			applyLink.Click();
-
-			Assert.Equal(ApplyUrl, driver.Url);
-			Assert.Equal(ApplyTitle, driver.Title);
+			var appPage = homePage.ClickApplyEasyAppLink();
+			appPage.EnsurePageLoaded();
 		}
 
 		[Fact]
 		public void BeInitiatedFromHomePage_CustomerService()
 		{
-			using var driver = new ChromeDriver(path, options)
-			{
-				Url = HomeUrl
-			};
+			using var driver = new ChromeDriver(path, options);
+			var homePage = new HomePage(driver);
 
 			driver.FindElement(By.CssSelector("[data-slide='next']")).Click();
 			Helper.Pause(1000);
@@ -144,104 +131,69 @@ namespace CreditCards.UITests
 		[Fact]
 		public void BeSubmittedWhenValid()
 		{
-			using var driver = new ChromeDriver(path, options)
-			{
-				Url = ApplyUrl
-			};
+			const string FirstName = "Dudda";
+			const string LastName = "Bayrozgaar";
+			const string Number = "12345-A";
+			const string Age = "18";
+			const string Income = "50000";
 
-			driver.FindElement(By.Id("FirstName")).SendKeys("Dudda");
-			driver.FindElement(By.Id("LastName")).SendKeys("Bayrozgaar");
-			driver.FindElement(By.Id("FrequentFlyerNumber")).SendKeys("12345-A");
-			driver.FindElement(By.Id("Age")).SendKeys("18");
-			driver.FindElement(By.Id("GrossAnnualIncome")).SendKeys("50000");
+			using var driver = new ChromeDriver(path, options);
+			var appPage = new ApplicationPage(driver);
+			appPage.EnterFirstName(FirstName);
+			appPage.EnterLastName(LastName);
+			appPage.EnterFrequentFlyerNumber(Number);
+			appPage.EnterAge(Age);
+			appPage.EnterGrossAnnualIncome(Income);
+			appPage.ChooseMaritalStatusSingle();
+			appPage.ChooseBusinessSourceTV();
+			appPage.AcceptTerms();
+			var appCompletePage = appPage.SubmitApplication();
 
-			var rb = driver.FindElement(By.Id("Single"));
-			if (!rb.Selected)
-				rb.Click();
-
-			var businessSource = new SelectElement(driver.FindElement(By.Id("BusinessSource")));
-
-			//Check default selection is correct
-			Assert.Equal("I'd Rather Not Say", businessSource.SelectedOption.Text);
-
-			//Get all available options
-			foreach (var option in businessSource.Options)
-				output.WriteLine($"Value: '{option.GetAttribute("value")}' Text:'{option.Text}'");
-
-			Assert.Equal(5, businessSource.Options.Count);
-
-			//Select an option
-			businessSource.SelectByValue("Email");
-			Helper.Pause(500);
-			businessSource.SelectByText("Internet Search");
-			Helper.Pause(500);
-			businessSource.SelectByIndex(4);
-
-			var cb = driver.FindElement(By.Id("TermsAccepted"));
-			if (!cb.Selected)
-				cb.Click();
-
-			//Method1 submit button
-			//driver.FindElement(By.Id("SubmitApplication")).Click();
-			//Method2 calling submit on an element submits the form this element is contained in
-			rb.Submit();
-
-			Assert.StartsWith("Application Complete", driver.Title);
-			Assert.Equal("ReferredToHuman", driver.FindElement(By.Id("Decision")).Text);
-			Assert.NotEmpty(driver.FindElement(By.Id("ReferenceNumber")).Text);
-			Assert.Equal("Dudda Bayrozgaar", driver.FindElement(By.Id("FullName")).Text);
-			Assert.Equal("18", driver.FindElement(By.Id("Age")).Text);
-			Assert.Equal("50000", driver.FindElement(By.Id("Income")).Text);
-			Assert.Equal("Single", driver.FindElement(By.Id("RelationshipStatus")).Text);
-			Assert.Equal("TV", driver.FindElement(By.Id("BusinessSource")).Text);
+			appCompletePage.EnsurePageLoaded();
+			Assert.Equal("ReferredToHuman", appCompletePage.Decision);
+			Assert.NotEmpty(appCompletePage.ReferenceNumber);
+			Assert.Equal($"{FirstName} {LastName}", appCompletePage.FullName);
+			Assert.Equal(Age, appCompletePage.Age);
+			Assert.Equal(Income, appCompletePage.Income);
+			Assert.Equal("Single", appCompletePage.RelationshipStatus);
+			Assert.Equal("TV", appCompletePage.BusinessSource);
 		}
 
 		[Fact]
 		public void BeSubmittedWhenValidationErrorsCorrected()
 		{
-			const string firstName = "Sarah";
-			const string invalidAge = "17";
-			const string validAge = "18";
+			const string FirstName = "Sarah";
+			const string InvalidAge = "17";
+			const string ValidAge = "18";
 
-			using var driver = new ChromeDriver(path, options)
-			{
-				Url = ApplyUrl
-			};
+			using var driver = new ChromeDriver(path, options);
+			var appPage = new ApplicationPage(driver);
 
-			driver.FindElement(By.Id("FirstName")).SendKeys(firstName);
-			//Don't enter lastname
-			driver.FindElement(By.Id("FrequentFlyerNumber")).SendKeys("123456-A");
-			driver.FindElement(By.Id("Age")).SendKeys(invalidAge);
-			driver.FindElement(By.Id("GrossAnnualIncome")).SendKeys("50000");
-			driver.FindElement(By.Id("Single")).Click();
-			var businessSource = new SelectElement(driver.FindElement(By.Id("BusinessSource")));
-			businessSource.SelectByValue("Email");
-			driver.FindElement(By.Id("TermsAccepted")).Click();
-			driver.FindElement(By.Id("SubmitApplication")).Click();
+			appPage.EnterFirstName(FirstName);
+			// Don't enter lastname
+			appPage.EnterFrequentFlyerNumber("123456-A");
+			appPage.EnterAge(InvalidAge);
+			appPage.EnterGrossAnnualIncome("50000");
+			appPage.ChooseMaritalStatusSingle();
+			appPage.ChooseBusinessSourceTV();
+			appPage.AcceptTerms();
+			appPage.SubmitApplication();   //due to validation failure, null will be returned
 
-			//Assert that validation failed                
-			var validationErrors = driver.FindElements(By.CssSelector(".validation-summary-errors > ul > li"));
-			Assert.Equal(2, validationErrors.Count);
-			Assert.Equal("Please provide a last name", validationErrors[0].Text);
-			Assert.Equal("You must be at least 18 years old", validationErrors[1].Text);
+			// Assert that validation failed                
+			Assert.Equal(2, appPage.ValidationMessages.Count);
+			Assert.Contains("Please provide a last name", appPage.ValidationMessages);
+			Assert.Contains("You must be at least 18 years old", appPage.ValidationMessages);
 
 			// Fix errors
-			driver.FindElement(By.Id("LastName")).SendKeys("Smith");
-			driver.FindElement(By.Id("Age")).Clear();
-			driver.FindElement(By.Id("Age")).SendKeys(validAge);
+			appPage.EnterLastName("Smith");
+			appPage.ClearAge();
+			appPage.EnterAge(ValidAge);
 
 			// Resubmit form
-			driver.FindElement(By.Id("SubmitApplication")).Click();
+			var appCompletePage = appPage.SubmitApplication();
 
-			// Check form submitted
-			Assert.StartsWith("Application Complete", driver.Title);
-			Assert.Equal("ReferredToHuman", driver.FindElement(By.Id("Decision")).Text);
-			Assert.NotEmpty(driver.FindElement(By.Id("ReferenceNumber")).Text);
-			Assert.Equal("Sarah Smith", driver.FindElement(By.Id("FullName")).Text);
-			Assert.Equal("18", driver.FindElement(By.Id("Age")).Text);
-			Assert.Equal("50000", driver.FindElement(By.Id("Income")).Text);
-			Assert.Equal("Single", driver.FindElement(By.Id("RelationshipStatus")).Text);
-			Assert.Equal("Email", driver.FindElement(By.Id("BusinessSource")).Text);
+			// Check form submitted  => not needed actually coz appCompletePage ctor calls it anyway
+			appCompletePage.EnsurePageLoaded();
 		}
 	}
 }

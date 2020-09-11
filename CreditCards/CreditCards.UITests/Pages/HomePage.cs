@@ -1,4 +1,6 @@
 ﻿using OpenQA.Selenium;
+using OpenQA.Selenium.Support.UI;
+using SeleniumExtras.WaitHelpers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -61,11 +63,31 @@ namespace CreditCards.UITests.Pages
 				throw new Exception($"Failed to load page. Page URL = '{_driver.Url}' PageSource: \r\n {_driver.PageSource}");
 		}
 
+
+
 		public void ClickContactFooterLink() => _driver.FindElement(By.Id("ContactFooter")).Click();
 
 		public void ClickLiveChatLink() => _driver.FindElement(By.Id("LiveChat")).Click();
 
 		public void ClickLearnAboutUsLink() => _driver.FindElement(By.Id("LearnAboutUs")).Click();
 
+		public ApplicationPage ClickApplyLowRateLink()
+		{
+			_driver.FindElement(By.Name("ApplyLowRate")).Click();
+			return new ApplicationPage(_driver);
+		}
+		public void WaitForEasyAppCarouselPage()
+		{
+			var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(1));
+			//TODO: make lambda work
+			//var applyLink = wait.Until( (d) => d.FindElement(By.LinkText("Easy: Apply Now!")));
+			var applyLink = wait.Until(ExpectedConditions.ElementToBeClickable(By.LinkText("Easy: Apply Now!")));
+		}
+
+		public ApplicationPage ClickApplyEasyAppLink()
+		{
+			_driver.FindElement(By.LinkText("Easy: Apply Now!")).Click();
+			return new ApplicationPage(_driver);
+		}
 	}
 }
