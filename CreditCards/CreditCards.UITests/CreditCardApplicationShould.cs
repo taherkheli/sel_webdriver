@@ -12,7 +12,7 @@ using Xunit.Abstractions;
 namespace CreditCards.UITests
 {
 	[Trait("Category", "Application")]
-	public class CreditCardApplicationShould
+	public class CreditCardApplicationShould : IClassFixture<ChromeDriverFixture>
 	{
 		#region Constants
 		private const string ApplyUrl = "http://localhost:5258/Apply";
@@ -20,27 +20,17 @@ namespace CreditCards.UITests
 		private const string ApplyTitle = "Credit Card Application - Credit Cards";
 		#endregion
 
-		private static readonly string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-		private static readonly ChromeOptions options = new ChromeOptions();
+		private readonly IWebDriver _driver;
 
-		private readonly ITestOutputHelper output;
-
-		public CreditCardApplicationShould(ITestOutputHelper output)
+		public CreditCardApplicationShould(ChromeDriverFixture chromeDriverFixture)
 		{
-			options.AddArguments("no-sandbox", "disable-dev-shm-usage", "incognito", "--start-maximized");
-			options.AddExcludedArgument("enable-automation");
-			options.AddAdditionalOption("useAutomationExtension", false);
-			//if (config.Browser.IsHeadless)
-			//	options.AddArguments("--headless");
-
-			this.output = output;
+			_driver = chromeDriverFixture.Driver;
 		}
 
 		[Fact]
 		public void BeInitiatedFromHomePage_NewLowRate()
 		{
-			using var driver = new ChromeDriver(path, options);
-			var homePage = new HomePage(driver);
+			var homePage = new HomePage(_driver);
 			var appPage = homePage.ClickApplyLowRateLink();
 			appPage.EnsurePageLoaded();
 		}
@@ -48,10 +38,9 @@ namespace CreditCards.UITests
 		[Fact]
 		public void BeInitiatedFromHomePage_EasyApplication()
 		{
-			using var driver = new ChromeDriver(path, options);
-			var homePage = new HomePage(driver);
+			var homePage = new HomePage(_driver);
 
-			driver.FindElement(By.CssSelector("[data-slide='next']")).Click(); //dun wanna wait 10 s ;)
+			_driver.FindElement(By.CssSelector("[data-slide='next']")).Click(); //dun wanna wait 10 s ;)
 			homePage.WaitForEasyAppCarouselPage();
 
 			var appPage = homePage.ClickApplyEasyAppLink();
@@ -61,12 +50,11 @@ namespace CreditCards.UITests
 		[Fact]
 		public void BeInitiatedFromHomePage_CustomerService()
 		{
-			using var driver = new ChromeDriver(path, options);
-			var homePage = new HomePage(driver);
+			var homePage = new HomePage(_driver);
 
-			driver.FindElement(By.CssSelector("[data-slide='next']")).Click();
+			_driver.FindElement(By.CssSelector("[data-slide='next']")).Click();
 			Helper.Pause(1000);
-			driver.FindElement(By.CssSelector("[data-slide='next']")).Click();
+			_driver.FindElement(By.CssSelector("[data-slide='next']")).Click();
 
 			Func<IWebDriver, IWebElement> findEnabledAndVisible = delegate (IWebDriver d)
 			{
@@ -81,51 +69,45 @@ namespace CreditCards.UITests
 				throw new NotFoundException();
 			};
 
-			var element = driver.FindElement(By.ClassName("customer-service-apply-now"));  //if there are many with this classname, fetches the first
-			output.WriteLine($"{DateTime.Now.ToLongTimeString()} Found element Displayed='{element.Displayed}' Enabled='{element.Enabled}'");
+			var element = _driver.FindElement(By.ClassName("customer-service-apply-now"));  //if there are many with this classname, fetches the first
+			//was coming through ITestOutputHelper output passed into ctor by xunit
+			//output.WriteLine($"{DateTime.Now.ToLongTimeString()} Found element Displayed='{element.Displayed}' Enabled='{element.Enabled}'");
 
-			var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(3));
+			var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(3));
 			//instead of using 'ExpectedConditions' functionality we can write our own custom conditions
 			element = wait.Until(findEnabledAndVisible);
 			//element = wait.Until(ExpectedConditions.ElementToBeClickable(By.ClassName("customer-service-apply-now")));
 
-			output.WriteLine($"{DateTime.Now.ToLongTimeString()} Found element Displayed='{element.Displayed}' Enabled='{element.Enabled}'");
+			//output.WriteLine($"{DateTime.Now.ToLongTimeString()} Found element Displayed='{element.Displayed}' Enabled='{element.Enabled}'");
 			element.Click();
 
-			Assert.Equal(ApplyUrl, driver.Url);
-			Assert.Equal(ApplyTitle, driver.Title);
+			Assert.Equal(ApplyUrl, _driver.Url);
+			Assert.Equal(ApplyTitle, _driver.Title);
 		}
 
 		[Fact]
 		public void BeInitiatedFromHomePage_RandomGreeting()
 		{
-			using var driver = new ChromeDriver(path, options)
-			{
-				Url = HomeUrl
-			};
+			_driver.Url = HomeUrl;
+			_driver.FindElement(By.PartialLinkText("- Apply Now!")).Click();
 
-			driver.FindElement(By.PartialLinkText("- Apply Now!")).Click();
-
-			Assert.Equal(ApplyUrl, driver.Url);
-			Assert.Equal(ApplyTitle, driver.Title);
+			Assert.Equal(ApplyUrl, _driver.Url);
+			Assert.Equal(ApplyTitle, _driver.Title);
 		}
 
 		[Fact]
 		public void BeInitiatedFromHomePage_RandomGreeting_Using_XPATH()
 		{
-			using var driver = new ChromeDriver(path, options)
-			{
-				Url = HomeUrl
-			};
+			_driver.Url = HomeUrl;
 
 			//absolute XPATH -> tied to html structure
 			//driver.FindElement(By.XPath("/html/body/div/div[4]/div/p/a")).Click();  
 
 			//relative XPATH -> retrieved via http://xpather.com/ -> less brittle -> when nothing else can be used for locating an element
-			driver.FindElement(By.XPath("//a[text()[contains(.,'- Apply Now!')]]")).Click();
+			_driver.FindElement(By.XPath("//a[text()[contains(.,'- Apply Now!')]]")).Click();
 
-			Assert.Equal(ApplyUrl, driver.Url);
-			Assert.Equal(ApplyTitle, driver.Title);
+			Assert.Equal(ApplyUrl, _driver.Url);
+			Assert.Equal(ApplyTitle, _driver.Title);
 		}
 
 		[Fact]
@@ -137,8 +119,8 @@ namespace CreditCards.UITests
 			const string Age = "18";
 			const string Income = "50000";
 
-			using var driver = new ChromeDriver(path, options);
-			var appPage = new ApplicationPage(driver);
+			
+			var appPage = new ApplicationPage(_driver);
 			appPage.EnterFirstName(FirstName);
 			appPage.EnterLastName(LastName);
 			appPage.EnterFrequentFlyerNumber(Number);
@@ -165,9 +147,8 @@ namespace CreditCards.UITests
 			const string FirstName = "Sarah";
 			const string InvalidAge = "17";
 			const string ValidAge = "18";
-
-			using var driver = new ChromeDriver(path, options);
-			var appPage = new ApplicationPage(driver);
+			
+			var appPage = new ApplicationPage(_driver);
 
 			appPage.EnterFirstName(FirstName);
 			// Don't enter lastname
